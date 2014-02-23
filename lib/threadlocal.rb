@@ -1,4 +1,3 @@
-require 'threadlocal/version'
 require 'delegate'
 
 class ThreadLocal
