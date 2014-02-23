@@ -1,5 +1,7 @@
 # threadlocal
 
+[![Build Status](https://travis-ci.org/MSch/threadlocal.png?branch=master)](https://travis-ci.org/MSch/threadlocal)
+
 Ruby's thread local variables are badly designed compared to other languages, even [Java](http://docs.oracle.com/javase/7/docs/api/java/lang/ThreadLocal.html) or [Python](http://docs.python.org/2/library/threading.html#threading.local).
 
 This gem fixes that.
