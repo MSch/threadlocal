@@ -26,11 +26,10 @@ describe ThreadLocal do
 
   it "cleans up across all threads when it gets finalized" do
     class ScopeThingy
-      attr_reader :l_id, :l_object_id
+      attr_reader :l_object_id
       def initialize
         @l = ThreadLocal.new
         @l_object_id = @l.object_id
-        @l_id = @l.instance_variable_get(:@id)
       end
 
       def step1
@@ -46,23 +45,21 @@ describe ThreadLocal do
         end
         sync.pop
 
-        t1.thread_variable_get(:thread_locals)[@l_id].must_equal "thread 1"
-        t2.thread_variable_get(:thread_locals)[@l_id].must_equal "thread 2"
+        t1.thread_variable_get(:thread_locals)[@l_object_id].must_equal "thread 1"
+        t2.thread_variable_get(:thread_locals)[@l_object_id].must_equal "thread 2"
 
         sync.push(:continue)
       end
 
       def step2
         @l = nil
-        @a = nil
       end
     end
 
     tmp = ScopeThingy.new
     l_object_id = tmp.l_object_id
-    l_id = tmp.l_id
     tmp.step1
-    Thread.current.thread_variable_get(:thread_locals).has_key?(l_id).must_equal true
+    Thread.current.thread_variable_get(:thread_locals).has_key?(l_object_id).must_equal true
     ObjectSpace.each_object(ThreadLocal).map(&:object_id).to_a.must_include(l_object_id)
 
     # Stop referencing the ThreadLocal
@@ -70,10 +67,11 @@ describe ThreadLocal do
     tmp = nil
 
     # without defining another finalizer our threadlocal never gets collected... why? no idea :(
+    # also see http://stackoverflow.com/q/14064400/625422
     ObjectSpace.define_finalizer(Object.new, lambda {})
     GC.start
 
     ObjectSpace.each_object(ThreadLocal).map(&:object_id).to_a.wont_include(l_object_id)
-    Thread.current.thread_variable_get(:thread_locals).has_key?(l_id).must_equal false
+    Thread.current.thread_variable_get(:thread_locals).has_key?(l_object_id).must_equal false
   end
 end
