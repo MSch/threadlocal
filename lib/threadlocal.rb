@@ -24,7 +24,7 @@ class ThreadLocal
   end
 
   def get
-    if self.exist?
+    if self.locals_hash.has_key? self.object_id
       self.locals_hash[self.object_id]
     elsif @default
       self.set @default.dup
@@ -37,14 +37,6 @@ class ThreadLocal
 
   def delete
     self.locals_hash.delete self.object_id
-  end
-
-  def exist?
-    self.locals_hash.has_key? self.object_id
-  end
-
-  def has_default?
-    @default_value || @default_proc
   end
 
   protected
