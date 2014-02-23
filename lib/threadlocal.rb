@@ -1,14 +1,15 @@
 require 'delegate'
 
 class ThreadLocal
-  @finalizer_proc = lambda do |object_id|
-    Thread.list.each do |thread|
-      if thread_locals = Thread.current.thread_variable_get(:thread_locals)
-        thread_locals.delete object_id
+  def self.finalizer_proc
+    @finalizer_proc ||= lambda do |object_id|
+      Thread.list.each do |thread|
+        if thread_locals = Thread.current.thread_variable_get(:thread_locals)
+          thread_locals.delete object_id
+        end
       end
     end
   end
-  def self.finalizer_proc ; @finalizer_proc ; end
 
   def initialize(default=nil, &default_proc)
     raise ArgumentError.new("either supply default or default_proc, not both") if default && default_proc
