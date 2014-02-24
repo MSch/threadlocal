@@ -52,7 +52,7 @@ Obviously this works just as well
 class MyThingy
   @settings = ThreadLocal.new({})
 
-  def settings
+  def self.settings
     @settings.get
   end
 end
@@ -62,6 +62,20 @@ MyThingy.settings[:whatever] # this is per thread now
 
 The `threadlocal` gem works and is tested on Ruby 2.0 and 2.1, JRuby can use Java's built-in `ThreadLocal` (making this
 transparent is on the roadmap.)
+
+### ThreadLocalDelegator
+
+There's also `ThreadLocalDelegator` which is mostly useful when supplied with a default value / default proc.
+
+```ruby
+class MyThingy
+  @settings = ThreadLocalDelegator.new({}) # will do {}.dup for every new thread since that's the default value
+
+  def self.enable_something
+    @settings[:something] = true
+  end
+end
+```
 
 Acknowledgements
 ----------------
